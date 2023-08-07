@@ -1,0 +1,378 @@
+{% extends "layout.html" %}
+
+
+{% block title %}
+{{title}}
+{% endblock %}
+
+
+{% block headline %}
+<div class = "text-right">
+    {{title}}
+    <button type="button" class="btn btn-primary">ログイン</button>
+    <button tyoe="button" class ="btn btn-primary">会員登録</button>
+</div>
+{% endblock %}
+
+{% block input %}
+<form method="post" action="/" style="display: flex; justify-content: center; align-items: center; height: 20vh;">  
+  <div style="display: flex; width: 100%; max-width: 700px;">
+      <input type="text" id="search_word" name="search_word" placeholder="{{message}}" style="width: 100%; font-size: 20px; padding: 10px; border-radius: 20px;">
+      <button type="submit" style="background-color: transparent; border: none; outline: none;">
+          <img src="{{ url_for('static', filename='search-icon.png') }}" alt="search" style="width: 25px; height: 25px;">
+      </button>
+  </div>
+</form>
+{% endblock %}
+
+
+{% block graph %}
+<br>
+<!-- 切り替えタブ部分 -->
+<ul class="nav nav-tabs" role="tablist">
+    <!-- １つ目のタブ -->
+    <li class="nav-item">
+        <a class="nav-link active" href="#view"
+            data-toggle="tab" role="tab">再生数</a>
+    </li>
+    <!-- ２つ目のタブ -->
+    <li class="nav-item">
+        <a class="nav-link" href="#like"
+            data-toggle="tab" role="tab">高評価数</a>
+    </li>
+    <!-- ３つ目のタブ -->
+    <li class="nav-item">
+        <a class="nav-link"  href="#all"
+            data-toggle="tab" role="tab">複合</a>
+    </li>
+    <li  class="nav-item">
+        <a class="nav-link" href="#scat"
+          data-toggle="tab" roel="tab">時間</a>
+    </li>
+</ul>
+
+<div class="tab-content">
+  <!-- 再生数のコンテンツ -->
+  <div class="tab-pane fade show active" id="view"  role="tabpanel">
+<canvas id="myChart"></canvas>
+<button id="view_btn">再生数グラフタイプ切り替え</button>
+<script>
+  var ctx = document.getElementById('myChart');
+  var titles = [{% for i in videodata %}"{{ i[1] }}",{% endfor %}];
+
+  var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [{% for i in videodata| reverse%}
+        "{{ i[4] }}",
+      {% endfor %}].map((v) => v.split("")),
+      datasets: [{
+        label: '再生数',
+        data: [{% for i in videodata| reverse%}
+          "{{ i[2] }}",
+        {% endfor %}],
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            title: function(context) {
+              var index = context[0].dataIndex;
+              var title = titles[index];
+              return title;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  document.getElementById('view_btn').addEventListener('click', function() {
+    if (myChart.config.type === 'line') {
+      myChart.config.type = 'bar';
+    } else {
+      myChart.config.type = 'line';
+    }
+    myChart.update();
+  });
+</script>
+</div>
+  <!-- 高評価数のコンテンツ -->
+<div class="tab-pane fade" id="like" role="tabpanel">
+  <canvas id="myChart2"></canvas>
+  <button id="like_btn">高評価数グラフタイプ切り替え</button>
+  <script>
+    var ctx = document.getElementById('myChart2');
+    var titles = [{% for i in videodata %}"{{ i[1] }}",{% endfor %}];
+  
+    var myChart2 = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [{% for i in videodata | reverse %}
+          "{{ i[4] }}",
+        {% endfor %}].map((v) => v.split("")),
+        datasets: [{
+          label: '高評価数',
+          data: [{% for i in videodata | reverse  %}
+            "{{ i[3] }}",
+          {% endfor %}],
+          backgroundColor: "rgb(255, 99, 132, 0.5)",
+          borderColor: "rgb(255, 99, 132, 0.5)",
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              title: function(context) {
+                var index = context[0].dataIndex;
+                var title = titles[index];
+                return title;
+              }
+            }
+          }
+        }
+      }
+    });
+  
+    document.getElementById('like_btn').addEventListener('click', function() {
+    if (myChart2.config.type === 'line') {
+      myChart2.config.type = 'bar';
+    } else {
+      myChart2.config.type = 'line';
+    }
+    myChart2.update();
+  });
+  </script>
+  </div>
+<!-- 複合のコンテンツ -->
+<div class="tab-pane fade" id="all" role="tabpanel">
+  <canvas id="myChart3"></canvas>
+  <button id="all_view_btn">再生数グラフタイプ切り替え</button>
+  <button id="all_like_btn">高評価数グラフタイプ切り替え</button>
+  <script>
+    var ctx = document.getElementById('myChart3');
+    var titles = [{% for i in videodata %}"{{ i[1] }}",{% endfor %}];
+  
+    var myChart3 = new Chart(ctx, {
+                    data: {
+                        labels: [
+                    {%for i in videodata%}
+                        "{{i[4]}}",
+                    {% endfor %}].map((v)=>v.split("")),
+              datasets: [{
+                  type: 'bar',
+                  label: '再生数',
+                  data: [{%for i in videodata%}
+                                "{{i[2]}}",
+                            {% endfor %}],
+                  backgroundColor: "rgb(54, 162, 235, 0.5)",
+                  borderColor: "rgb(54, 162, 235, 0.5)",
+                  yAxisID: "rainChart",
+              }, {
+                  type: 'line',
+                  label: '高評価数',
+                  data: [{%for i in videodata%}
+                                "{{i[3]}}",
+                            {% endfor %}],
+                  backgroundColor: "rgb(255, 99, 132, 0.5)",
+                  borderColor: "rgb(255, 99, 132, 0.5)",
+                  yAxisID: "temperatureChart",
+              }]
+          },
+          options: {
+            scales: {
+              "rainChart": {
+                position: "left",
+              },
+              "temperatureChart": {
+                position: "right",
+              }
+            },
+            plugins: {
+                tooltip: {
+                callbacks: {
+                    title: function(context) {
+                        var index = context[0].dataIndex;
+                        var title = titles[index];
+                        return title;
+                        }
+                }
+                }
+            },
+            interaction: {
+            mode: 'index'
+        }
+          }
+        });
+  
+document.getElementById('all_like_btn').addEventListener('click', function() {
+  myChart3.data.datasets.forEach((dataset) => {
+    if (dataset.label === '高評価数') {
+      if (dataset.type === 'line') {
+        dataset.type = 'bar';
+      } else {
+        dataset.type = 'line';
+      }
+    }
+  });
+  myChart3.update();
+});
+
+document.getElementById('all_view_btn').addEventListener('click', function() {
+  myChart3.data.datasets.forEach((dataset) => {
+    if (dataset.label === '再生数') {
+      if (dataset.type === 'line') {
+        dataset.type = 'bar';
+      } else {
+        dataset.type = 'line';
+      }
+    }
+  });
+  myChart3.update();
+});
+
+
+
+  </script>
+  </div>
+<!-- 散布図のコンテンツ -->
+<div class="tab-pane fade" id="scat" role="tabpanel">
+  <canvas id="scatterChart"></canvas>
+<script>
+
+var ctx = document.getElementById('scatterChart');
+var views = [{% for i in videodata %}"{{ i[2] }}",{% endfor %}];
+function parseJapaneseDate(dateString) {
+          const regex = /(\d+)時/;
+          const match = dateString.match(regex);
+          const hour = parseInt(match[0]);
+          return hour;
+        }
+        const chart = new Chart(ctx, {
+          type: 'scatter',
+          data: {
+            datasets: [
+            {
+              label: '再生数',
+              data: [
+              {%for i in videodata%}
+                    {x: parseJapaneseDate("{{i[4]}}"), y: "{{i[2]}}"},
+              {% endfor %}
+              ],
+              backgroundColor: 'blue'
+            }
+          ]
+          },
+          options: {
+            scales: {
+              x: {
+              title: {
+                display: true,
+                text: '投稿時間（時）'
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: '再生数'
+              }
+            }
+            },
+            plugins: {
+                tooltip: {
+                callbacks: {
+                    title: function(context) {
+                        var index = context[0].dataIndex;
+                        var title = titles[index];
+                        return title;
+                        }
+                    
+                }
+                }
+            }
+          }
+        });
+
+// 散布図を描画する
+</script>
+  
+</div>
+{% endblock %}
+
+{% block content %}
+<hr>
+<!--Youtubeのプロフィール情報-->
+<table class="table">
+    <h1 class ="text-center">チャンネルプロフィール情報</h1>
+    <thead>
+        <tr>
+            {%for i in channelcolumns%}
+            <th>{{i}}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            {%for i in channeldata%}
+            <th>{{i}}</th>
+            {% endfor %}
+        </tr>
+    </tbody>
+</table>
+<!--/Youtubeのプロフィール情報-->
+
+<!--指定したYoutubeチャンネルの動画リスト表示-->
+<table class="table">
+    
+    <h1 class ="text-center">動画情報</h1>
+
+    <thead>
+        <tr>
+            {%for i in videocolumns%}
+            <th>{{i}}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tr></tr>
+    <tbody>
+        {% for item,url in zip(videodata,urls)%}
+        <tr>
+          {% for result in item %}
+            {% if result.endswith(('.jpg', '.png', '.gif')) %}
+              <td>
+                <a href="{{url}}" target="_blank">
+                  <img src="{{ result }}" alt="image">
+                </a>
+              </td>
+            {% else %}
+               <td>{{ result }}</td>
+            {% endif %}
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+</table>
+<!--/指定したYoutubeチャンネルの動画リスト表示-->
+
+
+{% endblock %}
+
+
+
+
+{% block footer %}
+konpakuzero
+{% endblock %}
+

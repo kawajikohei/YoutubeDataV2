@@ -1,0 +1,56 @@
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<p>{{videodata}}</p>
+
+
+<canvas id="myChart"></canvas>
+<script>
+  var ctx = document.getElementById('myChart');
+  var titles = [{% for i in videodata %}"{{ i[0] }}",{% endfor %}];
+  var images = [{% for i in videodata %}"{{ i[4] }}",{% endfor %}];
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [{% for i in videodata %}
+        "{{ i[3] }}",
+      {% endfor %}].map((v) => v.split("")),
+      datasets: [{
+        label: '再生数',
+        data: [{% for i in videodata %}
+          "{{ i[1] }}",
+        {% endfor %}],
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      },
+      plugins: {
+        tooltip: {
+          usePointStyle:true,
+          callbacks: {
+            title: function(context) {
+              var index = context[0].dataIndex;
+              var title = titles[index];
+              return title;
+            },
+            labelPointStyle:function(context){
+              var index = context[0].dataIndex;
+              var image = new Image();
+              image.src = images[index];
+              return{
+                pointStyle: image
+              }
+
+
+            }
+          }
+        }
+      }
+    }
+  });
+</script>

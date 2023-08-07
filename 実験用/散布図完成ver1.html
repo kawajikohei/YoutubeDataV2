@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Sample Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <canvas id="myChart"></canvas>
+
+    <script>
+        const ctx = document.getElementById('myChart').getContext('2d');
+
+        function parseJapaneseDate(dateString) {
+          const regex = /(\d+)年(\d+)月(\d+)日(\d+)時/;
+          const match = dateString.match(regex);
+          const hour = parseInt(match[4]);
+          return hour;
+        }
+
+        const data = {
+          datasets: [
+            {
+              label: '再生数',
+              data: [
+                {x: parseJapaneseDate("2023年04月09日12時"), y: 1260},
+                {x: parseJapaneseDate("2023年04月09日13時"), y: 1200},
+                {x: parseJapaneseDate("2023年04月10日14時"), y: 1500},
+                {x: parseJapaneseDate("2023年04月11日15時"), y: 2000},
+                {x: parseJapaneseDate("2023年04月12日16時"), y: 1800},
+                {x: parseJapaneseDate("2023年04月13日17時"), y: 2200},
+                {x: parseJapaneseDate("2023年04月14日18時"), y: 2500},
+                {x: parseJapaneseDate("2023年04月15日19時"), y: 2800},
+                {x: parseJapaneseDate("2023年04月16日20時"), y: 3200},
+                {x: parseJapaneseDate("2023年04月17日21時"), y: 2700},
+                {x: parseJapaneseDate("2023年04月18日22時"), y: 2300},
+                {x: parseJapaneseDate("2023年04月19日23時"), y: 1700},
+                {x: parseJapaneseDate("2023年04月20日24時"), y: 1500},
+                {x: parseJapaneseDate("2023年04月20日24時"), y: 1500},
+              ],
+              backgroundColor: 'red'
+            }
+          ]
+        };
+
+        const chart = new Chart(ctx, {
+          type: 'scatter',
+          data: data,
+          options: {
+            scales: {
+              xAxes: [{
+                type: 'linear',
+                position: 'bottom',
+                ticks: {
+                  min: 0,
+                  max: 24,
+                  stepSize: 1,
+                  callback: function(value, index, values) {
+                    return value + "時";
+                  }
+                }
+              }],
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true,
+                  suggestedMax: 4000
+                },
+                scaleLabel: {
+                  display: true,
+                  labelString: '再生数'
+                }
+              }],
+              x: {
+              title: {
+                display: true,
+                text: '投稿時間（時）'
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: '再生数'
+              }
+            }
+            },
+            plugins: {
+              scaleLabel: {
+                display: true,
+                labelString: '時刻',
+                font: {
+                  size: 15
+                }
+              }
+            }
+          }
+        });
+    </script>
+</body>
+</html>

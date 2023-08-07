@@ -1,0 +1,52 @@
+
+<script>
+    var thumbnails = [{% for i in videodata%}"{{ i[0] }}",{% endfor %}];
+    var titles = [{% for i in videodata%}"{{ i[1] }}",{% endfor %}];
+    var views = [{% for i in videodata%}"{{ i[2] }}",{% endfor %}];
+    var like_counts = [{% for i in videodata%}"{{ i[3] }}",{% endfor %}];
+    var post_time = [{% for i in videodata%}"{{ i[4] }}",{% endfor %}];
+    createChart('mychart','再生数',post_time,views)
+    function createChart(chartname,labelname,post_time,data){
+        var ctx = document.getElementById(chartname);    
+        var chartname = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: post_time.map((v) => v.split("")),
+            datasets: [{
+            label: labelname,
+            data: data,
+            }]
+        },
+        options: {
+            scales: {
+            y: {
+                beginAtZero: true
+            }
+            },
+            plugins: {
+            tooltip: {
+                callbacks: {
+                title: function(context) {
+                    var index = context[0].dataIndex;
+                    var reversedIndex = context[0].dataset.data.length - 1 - index;//indexを逆順にしてグラフ描画のreverseに対応させる
+                    var title = titles[reversedIndex];
+                    return title;
+                }
+                }
+            }
+            }
+        }
+        });
+    
+        document.getElementById('view_btn').addEventListener('click', function() {
+        if (myChart.config.type === 'line') {
+            myChart.config.type = 'bar';
+        } else {
+            myChart.config.type = 'line';
+        }
+        myChart.update();
+        });
+
+    }
+    
+  </script>

@@ -1,0 +1,102 @@
+{% extends "layout.html" %}
+
+
+{% block title %}
+{{title}}
+{% endblock %}
+
+
+{% block headline %}
+<div class = "text-right">
+    {{title}}
+    <button type="button" class="btn btn-primary">ログイン</button>
+    <button tyoe="button" class ="btn btn-primary">会員登録</button>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+
+
+
+{% block graph %}
+<br>
+<!-- 切り替えタブ部分 -->
+<ul class="nav nav-tabs" role="tablist">
+    <!-- １つ目のタブ -->
+    <li class="nav-item">
+        <a class="nav-link active" href="#view"
+            data-toggle="tab" role="tab">再生数</a>
+    </li>
+    <!-- ２つ目のタブ -->
+    <li class="nav-item">
+        <a class="nav-link" href="#like"
+            data-toggle="tab" role="tab">高評価数</a>
+    </li>
+    <!-- ３つ目のタブ -->
+    <li class="nav-item">
+        <a class="nav-link"  href="#all"
+            data-toggle="tab" role="tab">複合</a>
+    </li>
+    <li  class="nav-item">
+        <a class="nav-link" href="#scat"
+          data-toggle="tab" roel="tab">時間</a>
+    </li>
+</ul>
+
+
+
+<div class="tab-content">
+  <!-- 再生数のコンテンツ -->
+  <div class="tab-pane fade show active" id="view"  role="tabpanel">
+<canvas id="chart1"></canvas>
+<button id="view_btn">再生数グラフタイプ切り替え</button>
+</div>
+</div>
+<script>
+    const thumnails = [{% for i in videodata%}"{{ i[0] }}",{% endfor %}];
+    const titles = [{% for i in videodata%}"{{ i[1] }}",{% endfor %}];
+    const view = [{% for i in videodata%}"{{ i[2] }}",{% endfor %}];
+    const likecounts = [{% for i in videodata%}"{{ i[3] }}",{% endfor %}];
+    const post_time = [{% for i in videodata%}"{{ i[4] }}",{% endfor %}];
+ </script>
+<script>
+  function newChart(id,labeldata,labelname,chartdata) {
+    const ctx = document.getElementById(id).getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labeldata,
+        datasets: [{
+          label: labelname,
+          data: chartdata
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        },
+        plugins: {
+        tooltip: {
+          callbacks: {
+            title: function(context) {
+              var index = context[0].dataIndex;
+              var reversedIndex = context[0].dataset.data.length - 1 - index;//indexを逆順にしてグラフ描画のreverseに対応させる
+              var title = titles[reversedIndex];
+              return title;
+            }
+          }
+        }
+      }
+      }
+    });
+    return chart;
+  }
+
+ </script>
+ <script>//chart変数=newChart('chartid',labeldata,)
+  const chart1 = newChart('chart1',);
+ </script>
+
+{% endblock %}
